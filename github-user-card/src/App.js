@@ -22,44 +22,92 @@ export class App extends Component {
     super();
     this.state = {
       userData: {},
-      followerData: []
+      followerData: [],
+      currentUser: 'mxxt1',
+      previousUser: 'mxxt1',
+      stagedUser: 'mxxt1'
     };
   }
 
   async getUser(){
-    const user = await axios('https://api.github.com/users/mxxt1');
+    const user = await axios(`https://api.github.com/users/${this.state.currentUser}`);
     console.log(user.data);
     return user.data;
   }
 
   async getFollowers(){
-    const followers = await axios('https://api.github.com/users/mxxt1/followers');
+    const followers = await axios(`https://api.github.com/users/${this.state.currentUser}/followers`);
     console.log(followers);
     return followers.data;
   }
 
-  componentDidMount(){
+    componentDidMount(){
 
-    this.getUser()
-    .then(user => this.setState({userData: user}))
-    .catch(error => console.log(`getUser Error: `, error));
-    
-    this.getFollowers()
-    .then(followers => this.setState({followerData: followers}))
-    .catch(error => console.log(`getFollowers Error: `, error));
-    };
-   
+      this.getUser()
+      .then(user => this.setState({userData: user}))
+      .catch(error => console.log(`getUser Error: `, error));
+      
+      this.getFollowers()
+      .then(followers => this.setState({followerData: followers}))
+      .catch(error => console.log(`getFollowers Error: `, error));
+      };
+
+    componentDidUpdate(prevProps){
+
+      if (this.state.currentUser !== this.state.previousUser) {
+        
+        this.getUser()
+      .then(user => this.setState({userData: user}))
+      .catch(error => console.log(`getUser Error: `, error));
+      
+      this.getFollowers()
+      .then(followers => this.setState({followerData: followers}))
+      .catch(error => console.log(`getFollowers Error: `, error));
+        
+      this.setState({previousUser: this.state.currentUser});
+    } 
+  };
+
+     
+
+      //form functions
+      changeHandler = event => {
+        console.log(event.target.value);
+        const gitUser = event.target.value.toLowerCase();
+        this.setState({stagedUser: gitUser});
+      ;}
+  
+      usernameSubmit = event => {
+        event.preventDefault();
+        this.setState({previousUser: this.state.currentUser})
+        console.log(this.state.previousUser);
+        this.setState({currentUser: this.state.stagedUser});
+        // this.setState({stagedUser: ''});
+
+    }
+
+
+
 
   render(){
       console.log(`render`)
+      console.log(this.state.stagedUser);
+      console.log(this.state.currentUser);
       return (
-        <AppContainer className="App">
-        <h1>{this.state.userData.name}'s Github Followers</h1>
-        <UserCard key={this.state.userData.id} data={this.state.userData}/>
-        {this.state.followerData.map(item => (
-          <UserCard key={item.id} data={item} />
-        ))}
+        <div className="App">
+          <h1>{this.state.userData.name}'s Github Followers</h1>
+          <div>
+            <form onSubmit={this.usernameSubmit}>
+            <input type="text" placeholder="Enter Your Github Username" onChange={this.changeHandler} value={this.state.stagedUser}  />
+            </form>
+          </div>
+          <UserCard key={this.state.userData.id} data={this.state.userData}/>
+          <AppContainer>  
+            {this.state.followerData.map(item => (
+              <UserCard key={item.id} data={item} />
+            ))}
         </AppContainer>
+        </div>
       );
   }
 }
