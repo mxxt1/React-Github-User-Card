@@ -62,7 +62,7 @@ export class App extends Component {
         </AppContainer>
       );
   }
-}//end component
+}
 
 export default App
 
