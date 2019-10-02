@@ -52,7 +52,7 @@ export class App extends Component {
       .catch(error => console.log(`getFollowers Error: `, error));
       };
 
-    componentDidUpdate(prevProps){
+    componentDidUpdate(){
 
       if (this.state.currentUser !== this.state.previousUser) {
         
